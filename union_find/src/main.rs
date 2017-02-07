@@ -51,8 +51,11 @@ impl UF {
 }
 
 #[cfg(test)]
+#[macro_use]
+extern crate quickcheck;
 mod test {
     use super::*;
+    use std::cmp;
     #[test]
     fn self_always_connected_self() {
         let uf = UF::new(1);
@@ -90,5 +93,14 @@ mod test {
         debug_assert_eq!(uf.connected(2, 3), false);
         debug_assert_eq!(uf.connected(0, 3), true);
         debug_assert_eq!(uf.connected(0, 4), true);
+    }
+
+    quickcheck! {
+        #[ignore]
+        fn quickcheck_test(p: usize, q: usize) -> bool {
+            let max = cmp::max(p, q);
+            let uf = UF::new(max + 1);
+            uf.connected(p, q) == uf.connected(p, q)
+        }
     }
 }
