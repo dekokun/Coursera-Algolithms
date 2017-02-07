@@ -127,7 +127,7 @@ mod tests {
 
     quickcheck! {
         #[ignore]
-        fn quickcheck_test(p1: usize, q1: usize, p2: usize, q2: usize) -> bool {
+        fn uf_is_same_uf2(p1: usize, q1: usize, p2: usize, q2: usize) -> bool {
             let max1 = cmp::max(p1, q1);
             let max2 = cmp::max(p2, q2);
             let max = cmp::max(max1, max2);
