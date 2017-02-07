@@ -1,3 +1,4 @@
+#![feature(test)]
 use std::io;
 use std::io::BufRead;
 
@@ -80,9 +81,11 @@ impl UF2 {
 #[cfg(test)]
 #[macro_use]
 extern crate quickcheck;
-mod test {
+extern crate test;
+mod tests {
     use super::*;
     use std::cmp;
+    use test::Bencher;
     #[test]
     fn self_always_connected_self() {
         let uf = UF::new(1);
@@ -134,5 +137,21 @@ mod test {
             uf2.union(p2, q2);
             uf.connected(p1, q1) == uf2.connected(p1, q1)
         }
+    }
+    #[bench]
+    fn bench_uf(b: &mut Bencher) {
+        b.iter(|| {
+            let mut uf = UF::new(1000);
+            uf.union(10, 20);
+            uf.connected(5, 10)
+        });
+    }
+    #[bench]
+    fn bench_uf2(b: &mut Bencher) {
+        b.iter(|| {
+            let mut uf = UF2::new(1000);
+            uf.union(10, 20);
+            uf.connected(5, 10)
+        });
     }
 }
