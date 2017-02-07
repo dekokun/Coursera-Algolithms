@@ -50,3 +50,42 @@ impl UF {
     }
 }
 
+#[test]
+fn self_always_connected_self() {
+  let uf = UF::new(1);
+  debug_assert_eq!(uf.connected(0, 0), true);
+}
+
+#[test]
+fn not_connected() {
+  let uf = UF::new(2);
+  debug_assert_eq!(uf.connected(0, 1), false);
+}
+
+#[test]
+fn normal() {
+  let mut uf = UF::new(2);
+  uf.union(0, 1);
+  debug_assert_eq!(uf.connected(0, 1), true);
+}
+
+#[test]
+fn multi() {
+  let mut uf = UF::new(5);
+  uf.union(0, 1);
+  debug_assert_eq!(uf.connected(0, 1), true);
+  debug_assert_eq!(uf.connected(0, 2), false);
+  debug_assert_eq!(uf.connected(2, 3), false);
+  uf.union(3, 4);
+  debug_assert_eq!(uf.connected(0, 1), true);
+  debug_assert_eq!(uf.connected(0, 2), false);
+  debug_assert_eq!(uf.connected(2, 3), false);
+  debug_assert_eq!(uf.connected(0, 3), false);
+  uf.union(0, 4);
+  debug_assert_eq!(uf.connected(0, 1), true);
+  debug_assert_eq!(uf.connected(0, 2), false);
+  debug_assert_eq!(uf.connected(2, 3), false);
+  debug_assert_eq!(uf.connected(0, 3), true);
+  debug_assert_eq!(uf.connected(0, 4), true);
+}
+
