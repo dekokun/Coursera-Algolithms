@@ -52,16 +52,16 @@ impl UF {
 }
 
 pub struct UF2 {
-    id: Vec<usize>,
+    id1: Vec<usize>,
+    id2: Vec<usize>,
 }
 
 impl UF2 {
-    fn new(n: usize) -> UF2 {
-        let mut vec: Vec<usize> = Vec::new();
-        for i in 0..n {
-            vec.push(i);
+    fn new(_: usize) -> UF2 {
+        UF2 {
+            id1: vec![],
+            id2: vec![],
         }
-        UF2 { id: vec }
     }
 
     fn connected(&self, p: usize, q: usize) -> bool {
@@ -141,7 +141,7 @@ mod tests {
     #[bench]
     fn bench_uf(b: &mut Bencher) {
         b.iter(|| {
-            let mut uf = UF::new(1000);
+            let mut uf = UF::new(100000);
             uf.union(10, 20);
             uf.connected(5, 10)
         });
@@ -149,7 +149,7 @@ mod tests {
     #[bench]
     fn bench_uf2(b: &mut Bencher) {
         b.iter(|| {
-            let mut uf = UF2::new(1000);
+            let mut uf = UF2::new(100000);
             uf.union(10, 20);
             uf.connected(5, 10)
         });
