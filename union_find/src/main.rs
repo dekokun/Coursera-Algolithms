@@ -50,6 +50,33 @@ impl UF {
     }
 }
 
+pub struct UF2 {
+    id: Vec<usize>,
+}
+
+impl UF2 {
+    fn new(n: usize) -> UF2 {
+        let mut vec: Vec<usize> = Vec::new();
+        for i in 0..n {
+            vec.push(i);
+        }
+        UF2 { id: vec }
+    }
+
+    fn connected(&self, p: usize, q: usize) -> bool {
+        self.id[p as usize] == self.id[q as usize]
+    }
+    fn union(&mut self, p: usize, q: usize) {
+        let pid = self.id[p];
+        let qid = self.id[q];
+        for i in 0..self.id.len() {
+            if self.id[i] == pid {
+                self.id[i] = qid;
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 #[macro_use]
 extern crate quickcheck;
@@ -97,10 +124,15 @@ mod test {
 
     quickcheck! {
         #[ignore]
-        fn quickcheck_test(p: usize, q: usize) -> bool {
-            let max = cmp::max(p, q);
-            let uf = UF::new(max + 1);
-            uf.connected(p, q) == uf.connected(p, q)
+        fn quickcheck_test(p1: usize, q1: usize, p2: usize, q2: usize) -> bool {
+            let max1 = cmp::max(p1, q1);
+            let max2 = cmp::max(p2, q2);
+            let max = cmp::max(max1, max2);
+            let mut uf = UF::new(max + 1);
+            let mut uf2 = UF2::new(max + 1);
+            uf.union(p2, q2);
+            uf2.union(p2, q2);
+            uf.connected(p1, q1) == uf2.connected(p1, q1)
         }
     }
 }
