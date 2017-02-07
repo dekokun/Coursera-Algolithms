@@ -1,0 +1,6 @@
+[package]
+name = "union_find"
+version = "0.1.0"
+authors = ["dekokun <dekokun@hatena.ne.jp>"]
+
+[dependencies]
