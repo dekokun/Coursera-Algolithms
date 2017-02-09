@@ -4,4 +4,4 @@ build:
     - script:
         name: union_find cargo test
         code: |-
-            cd union_find && cargo test --verbose
+            export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt; cd union_find && cargo test --verbose
