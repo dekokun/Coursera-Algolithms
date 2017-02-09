@@ -47,9 +47,10 @@ impl UF {
     fn union(&mut self, p: usize, q: usize) {
         // borrowingのせいでこの中間変数が必要に…
         let mut is_p_none = false;
+        let pid;
         {
-            let pid = self.id.get(&p);
-            let pid = match pid {
+            let pid_result = self.id.get(&p);
+            pid = match pid_result {
               Some(x) => *x,
               None => {
                 is_p_none = true;
@@ -61,10 +62,11 @@ impl UF {
           self.id.insert(p, p);
         }
 
+        let qid;
         let mut is_q_none = false;
         {
-            let qid = self.id.get(&q);
-            let qid = match qid {
+            let qid_result = self.id.get(&q);
+            qid = match qid_result {
               Some(x) => *x,
               None => {
                 is_q_none = true;
@@ -74,6 +76,12 @@ impl UF {
         }
         if is_q_none {
           self.id.insert(p, p);
+        }
+        let mut id = self.id.clone();
+        for (key, value) in id.iter_mut() {
+            if *value == pid {
+                *self.id.get_mut(key).unwrap() = qid;
+            }
         }
     }
 }
