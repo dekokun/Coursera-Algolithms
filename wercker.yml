@@ -4,4 +4,4 @@ build:
     - script:
         name: union_find cargo test
         code: |-
-            cd union_find && cargo test
+            cd union_find && cargo test --verbose
