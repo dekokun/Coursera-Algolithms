@@ -4,5 +4,5 @@ version = "0.1.0"
 authors = ["dekokun <dekokun@hatena.ne.jp>"]
 
 [dependencies]
-[dev-dependencies]
 quickcheck = "0.4"
+[dev-dependencies]

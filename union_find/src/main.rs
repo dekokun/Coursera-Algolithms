@@ -1,6 +1,7 @@
 #![feature(test)]
 use std::io;
 use std::io::BufRead;
+use std::collections::HashMap;
 
 fn main() {
     let stdin = io::stdin();
@@ -25,43 +26,81 @@ fn main() {
 }
 
 pub struct UF {
-    id: Vec<usize>,
+    id: HashMap<usize, usize>,
 }
 
 impl UF {
-    fn new(n: usize) -> UF {
-        let mut vec: Vec<usize> = Vec::new();
-        for i in 0..n {
-            vec.push(i);
-        }
-        UF { id: vec }
+    fn new(_: usize) -> UF {
+        UF { id: HashMap::new() }
     }
 
     fn connected(&self, p: usize, q: usize) -> bool {
-        self.id[p as usize] == self.id[q as usize]
+        if p == q {
+            return true
+        }
+        let pid = self.id.get(&p);
+        let qid = self.id.get(&q);
+        if pid == None || qid == None {
+          false
+        } else {
+          pid == qid
+        }
     }
+
     fn union(&mut self, p: usize, q: usize) {
-        let pid = self.id[p];
-        let qid = self.id[q];
-        for i in 0..self.id.len() {
-            if self.id[i] == pid {
-                self.id[i] = qid;
+        // borrowingの回避用中間変数
+        // もっとうまくできないものか
+        let mut is_p_none = false;
+        let pid;
+        {
+            let pid_result = self.id.get(&p);
+            pid = match pid_result {
+              Some(x) => *x,
+              None => {
+                is_p_none = true;
+                p
+              }
+            };
+        }
+        if is_p_none {
+          self.id.insert(p, p);
+        }
+
+        let qid;
+        let mut is_q_none = false;
+        {
+            let qid_result = self.id.get(&q);
+            qid = match qid_result {
+              Some(x) => *x,
+              None => {
+                is_q_none = true;
+                q
+              }
+            };
+        }
+        if is_q_none {
+          self.id.insert(q, q);
+        }
+        let mut id = self.id.clone();
+        for (key, value) in id.iter_mut() {
+            if *value == pid {
+                *self.id.get_mut(key).unwrap() = qid;
             }
         }
     }
 }
 
-pub struct UF2 {
+pub struct UFSimple {
     id: Vec<usize>,
 }
 
-impl UF2 {
-    fn new(n: usize) -> UF2 {
+impl UFSimple {
+    fn new(n: usize) -> UFSimple {
         let mut vec: Vec<usize> = Vec::new();
         for i in 0..n {
             vec.push(i);
         }
-        UF2 { id: vec }
+        UFSimple { id: vec }
     }
 
     fn connected(&self, p: usize, q: usize) -> bool {
@@ -132,7 +171,7 @@ mod tests {
             let max2 = cmp::max(p2, q2);
             let max = cmp::max(max1, max2);
             let mut uf = UF::new(max + 1);
-            let mut uf2 = UF2::new(max + 1);
+            let mut uf2 = UFSimple::new(max + 1);
             uf.union(p2, q2);
             uf2.union(p2, q2);
             uf.connected(p1, q1) == uf2.connected(p1, q1)
@@ -149,7 +188,7 @@ mod tests {
     #[bench]
     fn bench_uf2(b: &mut Bencher) {
         b.iter(|| {
-            let mut uf = UF2::new(1000);
+            let mut uf = UFSimple::new(1000);
             uf.union(10, 20);
             uf.connected(5, 10)
         });
