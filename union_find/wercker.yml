@@ -1,0 +1,4 @@
+box: asaskevich/rust-latest
+build:
+  steps:
+    - asaskevich/rust-test
