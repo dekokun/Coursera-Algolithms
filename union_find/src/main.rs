@@ -36,14 +36,14 @@ impl UF {
 
     fn connected(&self, p: usize, q: usize) -> bool {
         if p == q {
-            return true
+            return true;
         }
         let pid = self.id.get(&p);
         let qid = self.id.get(&q);
         if pid == None || qid == None {
-          false
+            false
         } else {
-          pid == qid
+            pid == qid
         }
     }
 
@@ -55,15 +55,15 @@ impl UF {
         {
             let pid_result = self.id.get(&p);
             pid = match pid_result {
-              Some(x) => *x,
-              None => {
-                is_p_none = true;
-                p
-              }
+                Some(x) => *x,
+                None => {
+                    is_p_none = true;
+                    p
+                }
             };
         }
         if is_p_none {
-          self.id.insert(p, p);
+            self.id.insert(p, p);
         }
 
         let qid;
@@ -71,15 +71,15 @@ impl UF {
         {
             let qid_result = self.id.get(&q);
             qid = match qid_result {
-              Some(x) => *x,
-              None => {
-                is_q_none = true;
-                q
-              }
+                Some(x) => *x,
+                None => {
+                    is_q_none = true;
+                    q
+                }
             };
         }
         if is_q_none {
-          self.id.insert(q, q);
+            self.id.insert(q, q);
         }
         let mut id = self.id.clone();
         for (key, value) in id.iter_mut() {
