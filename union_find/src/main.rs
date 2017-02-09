@@ -86,17 +86,17 @@ impl UF {
     }
 }
 
-pub struct UF2 {
+pub struct UFSimple {
     id: Vec<usize>,
 }
 
-impl UF2 {
-    fn new(n: usize) -> UF2 {
+impl UFSimple {
+    fn new(n: usize) -> UFSimple {
         let mut vec: Vec<usize> = Vec::new();
         for i in 0..n {
             vec.push(i);
         }
-        UF2 { id: vec }
+        UFSimple { id: vec }
     }
 
     fn connected(&self, p: usize, q: usize) -> bool {
@@ -167,7 +167,7 @@ mod tests {
             let max2 = cmp::max(p2, q2);
             let max = cmp::max(max1, max2);
             let mut uf = UF::new(max + 1);
-            let mut uf2 = UF2::new(max + 1);
+            let mut uf2 = UFSimple::new(max + 1);
             uf.union(p2, q2);
             uf2.union(p2, q2);
             uf.connected(p1, q1) == uf2.connected(p1, q1)
@@ -184,7 +184,7 @@ mod tests {
     #[bench]
     fn bench_uf2(b: &mut Bencher) {
         b.iter(|| {
-            let mut uf = UF2::new(1000);
+            let mut uf = UFSimple::new(1000);
             uf.union(10, 20);
             uf.connected(5, 10)
         });
