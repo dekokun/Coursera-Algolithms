@@ -1,4 +1,4 @@
-box: asaskevich/rust-latest
+box: jimmycuadra/rust
 build:
   steps:
     - asaskevich/rust-test
