@@ -35,6 +35,9 @@ impl UF {
     }
 
     fn connected(&self, p: usize, q: usize) -> bool {
+        if p == q {
+            return true
+        }
         let pid = self.id.get(&p);
         let qid = self.id.get(&q);
         if pid == None || qid == None {
