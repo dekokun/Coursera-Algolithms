@@ -1,6 +1,7 @@
 #![feature(test)]
 use std::io;
 use std::io::BufRead;
+use std::collections::HashMap;
 
 fn main() {
     let stdin = io::stdin();
@@ -52,27 +53,49 @@ impl UF {
 }
 
 pub struct UF2 {
-    id1: Vec<usize>,
-    id2: Vec<usize>,
+    id: HashMap<usize, usize>,
 }
 
 impl UF2 {
     fn new(_: usize) -> UF2 {
-        UF2 {
-            id1: vec![],
-            id2: vec![],
-        }
+        let id = HashMap::new();
+        UF2 { id: id }
     }
 
     fn connected(&self, p: usize, q: usize) -> bool {
-        self.id[p as usize] == self.id[q as usize]
+        if self.id.contains_key(&p) || self.id.contains_key(&q) {
+            false
+        } else {
+            self.id.get(&p) == self.id.get(&q)
+        }
     }
     fn union(&mut self, p: usize, q: usize) {
-        let pid = self.id[p];
-        let qid = self.id[q];
-        for i in 0..self.id.len() {
-            if self.id[i] == pid {
-                self.id[i] = qid;
+        let id = &mut self.id;
+        let pid_result = id.get(&p);
+        let pid;
+        {
+            let &pid = match pid_result {
+                Some(x) => x,
+                None => {
+                    id.insert(p, p);
+                    &p
+                }
+            };
+        }
+        let qid_result = id.get(&q);
+        let qid;
+        {
+            let &qid = match qid {
+                Some(x) => x,
+                None => {
+                    id.insert(q, q);
+                    &q
+                }
+            };
+        }
+        for (key, value) in id {
+            if *value == pid {
+                *value = *qid.unwrap()
             }
         }
     }
