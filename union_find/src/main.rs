@@ -75,7 +75,7 @@ impl UF {
             };
         }
         if is_q_none {
-          self.id.insert(p, p);
+          self.id.insert(q, q);
         }
         let mut id = self.id.clone();
         for (key, value) in id.iter_mut() {
