@@ -1,4 +1,7 @@
-box: asaskevich/rust-latest
+box: octplane/docker-rust
 build:
   steps:
-    - asaskevich/rust-test
+    - script:
+        name: union_find cargo test
+        code: |-
+            export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt; cd union_find && cargo test --verbose
