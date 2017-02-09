@@ -1,4 +1,7 @@
 box: jimmycuadra/rust
 build:
   steps:
-    - asaskevich/rust-test
+    - script:
+        name: cargo test
+        code: |-
+            cargo test
