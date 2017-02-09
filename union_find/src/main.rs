@@ -48,7 +48,8 @@ impl UF {
     }
 
     fn union(&mut self, p: usize, q: usize) {
-        // borrowingのせいでこの中間変数が必要に…
+        // borrowingの回避用中間変数
+        // もっとうまくできないものか
         let mut is_p_none = false;
         let pid;
         {
