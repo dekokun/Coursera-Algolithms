@@ -45,6 +45,7 @@ impl UF {
     }
 
     fn union(&mut self, p: usize, q: usize) {
+        // borrowingのせいでこの中間変数が必要に…
         let mut is_p_none = false;
         {
             let pid = self.id.get(&p);
