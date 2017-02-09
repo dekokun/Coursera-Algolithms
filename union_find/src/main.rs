@@ -47,18 +47,18 @@ impl UF {
     fn union(&mut self, p: usize, q: usize) {
         let pid = self.id.get(&p);
         let pid = match pid {
-          Some(x) => x,
+          Some(x) => *x,
           None => {
             self.id.insert(p, p);
-            pid
+            p
           }
         };
         let qid = self.id.get(&q);
         let qid = match qid {
-          Some(x) => x,
+          Some(x) => *x,
           None => {
             self.id.insert(q, q);
-            pid
+            q
           }
         };
     }
