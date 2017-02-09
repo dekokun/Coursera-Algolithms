@@ -45,22 +45,35 @@ impl UF {
     }
 
     fn union(&mut self, p: usize, q: usize) {
-        let pid = self.id.get(&p);
-        let pid = match pid {
-          Some(x) => *x,
-          None => {
-            self.id.insert(p, p);
-            p
-          }
-        };
-        let qid = self.id.get(&q);
-        let qid = match qid {
-          Some(x) => *x,
-          None => {
-            self.id.insert(q, q);
-            q
-          }
-        };
+        let mut is_p_none = false;
+        {
+            let pid = self.id.get(&p);
+            let pid = match pid {
+              Some(x) => *x,
+              None => {
+                is_p_none = true;
+                p
+              }
+            };
+        }
+        if is_p_none {
+          self.id.insert(p, p);
+        }
+
+        let mut is_q_none = false;
+        {
+            let qid = self.id.get(&q);
+            let qid = match qid {
+              Some(x) => *x,
+              None => {
+                is_q_none = true;
+                q
+              }
+            };
+        }
+        if is_q_none {
+          self.id.insert(p, p);
+        }
     }
 }
 
