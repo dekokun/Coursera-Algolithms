@@ -1,4 +1,4 @@
-box: jimmycuadra/rust
+box: octplane/docker-rust
 build:
   steps:
     - script:
