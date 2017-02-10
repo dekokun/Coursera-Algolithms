@@ -90,10 +90,12 @@ impl UF {
     }
 }
 
+#[cfg(test)]
 pub struct UFSimple {
     id: Vec<usize>,
 }
 
+#[cfg(test)]
 impl UFSimple {
     fn new(n: usize) -> UFSimple {
         let mut vec: Vec<usize> = Vec::new();
@@ -122,8 +124,11 @@ impl UFSimple {
 extern crate quickcheck;
 extern crate test;
 mod tests {
+    #[cfg(test)]
     use super::*;
+    #[cfg(test)]
     use std::cmp;
+    #[cfg(test)]
     use test::Bencher;
     #[test]
     fn self_always_connected_self() {
