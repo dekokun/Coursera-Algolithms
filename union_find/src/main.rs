@@ -164,6 +164,7 @@ mod tests {
         debug_assert_eq!(uf.connected(0, 4), true);
     }
 
+    #[test]
     quickcheck! {
         #[ignore]
         fn uf_is_same_uf2(p1: usize, q1: usize, p2: usize, q2: usize) -> bool {
