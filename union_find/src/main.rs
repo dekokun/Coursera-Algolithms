@@ -3,6 +3,7 @@
 use std::io;
 use std::io::BufRead;
 use std::collections::HashMap;
+use std::fmt;
 
 fn main() {
     let stdin = io::stdin();
@@ -123,6 +124,64 @@ impl QuickUnionUF {
     }
 }
 
+pub struct QuickUnionWeightedUF {
+    id: Vec<usize>,
+    sz: Vec<usize>,
+}
+
+impl QuickUnionWeightedUF {
+    fn new(n: usize) -> QuickUnionWeightedUF {
+        let mut vec: Vec<usize> = Vec::new();
+        let mut vec2: Vec<usize> = Vec::new();
+        for i in 0..n {
+            vec.push(i);
+            vec2.push(1);
+        }
+        QuickUnionWeightedUF {
+            id: vec,
+            sz: vec2,
+        }
+    }
+
+    fn root(&self, p: usize) -> usize {
+        let mut i = p;
+        while self.id[i] != i {
+            i = self.id[i];
+        }
+        i
+    }
+
+    fn connected(&self, p: usize, q: usize) -> bool {
+        self.root(p) == self.root(q)
+    }
+
+    fn union(&mut self, p: usize, q: usize) {
+        let proot = self.root(p);
+        let qroot = self.root(q);
+        if proot == qroot {
+            return;
+        }
+        if self.sz[proot] < self.sz[qroot] {
+            self.id[proot] = qroot;
+            self.sz[qroot] += self.sz[proot];
+        } else {
+            self.id[qroot] = proot;
+            self.sz[proot] += self.sz[qroot];
+        }
+    }
+}
+
+impl fmt::Display for QuickUnionWeightedUF {
+    // This trait requires `fmt` with this exact signature.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Write strictly the first element into the supplied output
+        // stream: `f`. Returns `fmt::Result` which indicates whether the
+        // operation succeeded or failed. Note that `write!` uses syntax which
+        // is very similar to `println!`.
+        write!(f, "{:?}", self.id)
+    }
+}
+
 #[cfg(test)]
 pub struct UFSimple {
     id: Vec<usize>,
@@ -238,6 +297,38 @@ mod tests {
         debug_assert_eq!(uf.connected(0, 4), true);
     }
     #[test]
+    fn qwuf_not_connected() {
+        let uf = QuickUnionWeightedUF::new(2);
+        debug_assert_eq!(uf.connected(0, 1), false);
+    }
+
+    #[test]
+    fn qwuf_normal() {
+        let mut uf = QuickUnionWeightedUF::new(2);
+        uf.union(0, 1);
+        debug_assert_eq!(uf.connected(0, 1), true);
+    }
+
+    #[test]
+    fn qwuf_multi() {
+        let mut uf = QuickUnionWeightedUF::new(5);
+        uf.union(0, 1);
+        debug_assert_eq!(uf.connected(0, 1), true);
+        debug_assert_eq!(uf.connected(0, 2), false);
+        debug_assert_eq!(uf.connected(2, 3), false);
+        uf.union(3, 4);
+        debug_assert_eq!(uf.connected(0, 1), true);
+        debug_assert_eq!(uf.connected(0, 2), false);
+        debug_assert_eq!(uf.connected(2, 3), false);
+        debug_assert_eq!(uf.connected(0, 3), false);
+        uf.union(0, 4);
+        debug_assert_eq!(uf.connected(0, 1), true);
+        debug_assert_eq!(uf.connected(0, 2), false);
+        debug_assert_eq!(uf.connected(2, 3), false);
+        debug_assert_eq!(uf.connected(0, 3), true);
+        debug_assert_eq!(uf.connected(0, 4), true);
+    }
+    #[test]
     quickcheck! {
         #[ignore]
         fn uf_is_same_uf2(p1: usize, q1: usize, p2: usize, q2: usize) -> bool {
@@ -266,6 +357,19 @@ mod tests {
             uf == quf
         }
     }
+    quickcheck! {
+        #[ignore]
+        fn quickunionweited_is_same_uf(p1: usize, q1: usize, p2: usize, q2: usize) -> bool {
+            let max1 = cmp::max(p1, q1);
+            let max2 = cmp::max(p2, q2);
+            let max = cmp::max(max1, max2);
+            let mut uf = UF::new(max + 1);
+            let mut uf2 = QuickUnionWeightedUF::new(max + 1);
+            uf.union(p2, q2);
+            uf2.union(p2, q2);
+            uf.connected(p1, q1) == uf2.connected(p1, q1)
+        }
+    }
     #[bench]
     fn bench_uf(b: &mut Bencher) {
         b.iter(|| {
@@ -290,6 +394,16 @@ mod tests {
             uf.connected(5, 10)
         });
     }
+
+    #[bench]
+    fn bench_qwuf(b: &mut Bencher) {
+        b.iter(|| {
+            let mut uf = QuickUnionWeightedUF::new(1000);
+            uf.union(10, 20);
+            uf.connected(5, 10)
+        });
+    }
+
     #[bench]
     fn bench_many_connect_uf(b: &mut Bencher) {
         let max = 1000;
@@ -315,6 +429,83 @@ mod tests {
                 let p = rng.gen_range(0, max - 1);
                 let q = rng.gen_range(0, max - 1);
                 uf.union(p, q);
+            }
+        });
+    }
+
+    #[bench]
+    fn bench_many_connect_qwuf(b: &mut Bencher) {
+        b.iter(|| {
+            let max = 1000;
+            let mut uf = QuickUnionWeightedUF::new(max);
+            let count = 1000;
+            let mut rng = rand::IsaacRng::new_unseeded();
+            for _ in 0..count {
+                let p = rng.gen_range(0, max - 1);
+                let q = rng.gen_range(0, max - 1);
+                uf.union(p, q);
+            }
+        });
+    }
+
+    #[bench]
+    fn bench_many_find_uf(b: &mut Bencher) {
+        let max = 1000;
+        let mut uf = UF::new(max);
+        let union_count = 1000;
+        let find_count = 1000;
+        let mut rng = rand::IsaacRng::new_unseeded();
+        for _ in 0..union_count {
+            let p = rng.gen_range(0, max - 1);
+            let q = rng.gen_range(0, max - 1);
+            uf.union(p, q);
+        }
+        b.iter(|| {
+            for _ in 0..find_count {
+                let p = rng.gen_range(0, max - 1);
+                let q = rng.gen_range(0, max - 1);
+                uf.connected(p, q);
+            }
+        });
+    }
+    #[bench]
+    fn bench_many_find_quf(b: &mut Bencher) {
+        let max = 1000;
+        let mut uf = QuickUnionUF::new(max);
+        let union_count = 1000;
+        let find_count = 1000;
+        let mut rng = rand::IsaacRng::new_unseeded();
+        for _ in 0..union_count {
+            let p = rng.gen_range(0, max - 1);
+            let q = rng.gen_range(0, max - 1);
+            uf.union(p, q);
+        }
+        b.iter(|| {
+            for _ in 0..find_count {
+                let p = rng.gen_range(0, max - 1);
+                let q = rng.gen_range(0, max - 1);
+                uf.connected(p, q);
+            }
+        });
+    }
+
+    #[bench]
+    fn bench_many_find_qwuf(b: &mut Bencher) {
+        let max = 1000;
+        let mut uf = QuickUnionWeightedUF::new(max);
+        let union_count = 1000;
+        let find_count = 1000;
+        let mut rng = rand::IsaacRng::new_unseeded();
+        for _ in 0..union_count {
+            let p = rng.gen_range(0, max - 1);
+            let q = rng.gen_range(0, max - 1);
+            uf.union(p, q);
+        }
+        b.iter(|| {
+            for _ in 0..find_count {
+                let p = rng.gen_range(0, max - 1);
+                let q = rng.gen_range(0, max - 1);
+                uf.connected(p, q);
             }
         });
     }
