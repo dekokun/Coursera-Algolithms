@@ -90,6 +90,38 @@ impl UF {
     }
 }
 
+pub struct QuickUnionUF {
+    id: Vec<usize>,
+}
+
+impl QuickUnionUF {
+    fn new(n: usize) -> QuickUnionUF {
+        let mut vec: Vec<usize> = Vec::new();
+        for i in 0..n {
+            vec.push(i);
+        }
+        QuickUnionUF { id: vec }
+    }
+
+    fn root(&self, p: usize) -> usize {
+        let mut i = p;
+        while self.id[i] != i {
+            i = self.id[i];
+        }
+        i
+    }
+
+    fn connected(&self, p: usize, q: usize) -> bool {
+        self.root(p) == self.root(q)
+    }
+
+    fn union(&mut self, p: usize, q: usize) {
+        let proot = self.root(p);
+        let qroot = self.root(q);
+        self.id[proot] = qroot
+    }
+}
+
 #[cfg(test)]
 pub struct UFSimple {
     id: Vec<usize>,
@@ -170,6 +202,38 @@ mod tests {
     }
 
     #[test]
+    fn quf_not_connected() {
+        let uf = QuickUnionUF::new(2);
+        debug_assert_eq!(uf.connected(0, 1), false);
+    }
+
+    #[test]
+    fn quf_normal() {
+        let mut uf = QuickUnionUF::new(2);
+        uf.union(0, 1);
+        debug_assert_eq!(uf.connected(0, 1), true);
+    }
+
+    #[test]
+    fn quf_multi() {
+        let mut uf = QuickUnionUF::new(5);
+        uf.union(0, 1);
+        debug_assert_eq!(uf.connected(0, 1), true);
+        debug_assert_eq!(uf.connected(0, 2), false);
+        debug_assert_eq!(uf.connected(2, 3), false);
+        uf.union(3, 4);
+        debug_assert_eq!(uf.connected(0, 1), true);
+        debug_assert_eq!(uf.connected(0, 2), false);
+        debug_assert_eq!(uf.connected(2, 3), false);
+        debug_assert_eq!(uf.connected(0, 3), false);
+        uf.union(0, 4);
+        debug_assert_eq!(uf.connected(0, 1), true);
+        debug_assert_eq!(uf.connected(0, 2), false);
+        debug_assert_eq!(uf.connected(2, 3), false);
+        debug_assert_eq!(uf.connected(0, 3), true);
+        debug_assert_eq!(uf.connected(0, 4), true);
+    }
+    #[test]
     quickcheck! {
         #[ignore]
         fn uf_is_same_uf2(p1: usize, q1: usize, p2: usize, q2: usize) -> bool {
@@ -181,6 +245,21 @@ mod tests {
             uf.union(p2, q2);
             uf2.union(p2, q2);
             uf.connected(p1, q1) == uf2.connected(p1, q1)
+        }
+    }
+    quickcheck! {
+        #[ignore]
+        fn quickunion_is_same_uf(p1: usize, q1: usize, p2: usize, q2: usize) -> bool {
+            let max1 = cmp::max(p1, q1);
+            let max2 = cmp::max(p2, q2);
+            let max = cmp::max(max1, max2);
+            let mut uf = UFSimple::new(max + 1);
+            let mut quickunion = QuickUnionUF::new(max + 1);
+            uf.union(p2, q2);
+            quickunion.union(p2, q2);
+            let uf = uf.connected(p1, q1);
+            let quf = quickunion.connected(p1, q1);
+            uf == quf
         }
     }
     #[bench]
@@ -195,6 +274,14 @@ mod tests {
     fn bench_uf2(b: &mut Bencher) {
         b.iter(|| {
             let mut uf = UFSimple::new(1000);
+            uf.union(10, 20);
+            uf.connected(5, 10)
+        });
+    }
+    #[bench]
+    fn bench_quf(b: &mut Bencher) {
+        b.iter(|| {
+            let mut uf = QuickUnionUF::new(1000);
             uf.union(10, 20);
             uf.connected(5, 10)
         });
