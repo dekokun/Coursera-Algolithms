@@ -292,11 +292,11 @@ mod tests {
     }
     #[bench]
     fn bench_many_connect_uf(b: &mut Bencher) {
+        let max = 1000;
+        let mut uf = UF::new(max);
+        let count = 1000;
+        let mut rng = rand::IsaacRng::new_unseeded();
         b.iter(|| {
-            let max = 1000;
-            let mut uf = UF::new(max);
-            let count = 1000;
-            let mut rng = rand::IsaacRng::new_unseeded();
             for _ in 0..count {
                 let p = rng.gen_range(0, max - 1);
                 let q = rng.gen_range(0, max - 1);
@@ -306,11 +306,11 @@ mod tests {
     }
     #[bench]
     fn bench_many_connect_quf(b: &mut Bencher) {
+        let max = 1000;
+        let mut uf = QuickUnionUF::new(max);
+        let count = 1000;
+        let mut rng = rand::IsaacRng::new_unseeded();
         b.iter(|| {
-            let max = 1000;
-            let mut uf = QuickUnionUF::new(max);
-            let count = 1000;
-            let mut rng = rand::IsaacRng::new_unseeded();
             for _ in 0..count {
                 let p = rng.gen_range(0, max - 1);
                 let q = rng.gen_range(0, max - 1);
